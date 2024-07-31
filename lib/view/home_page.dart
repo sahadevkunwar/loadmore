@@ -24,17 +24,18 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           if (state is CommonErrorState) {
             return Center(child: Text(state.message));
-          } else if (state is CommonSuccessState<List<Make>>) {
+          } else if (state is CommonSuccessState<Product>) {
             return ListView.separated(
-              itemCount: state.item.length,
+              itemCount: state.item.data.makes.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    context
-                        .read<FetchProductDetailBloc>()
-                        .add(FetchProductEvent(makeId: state.item[index].id));
+                    context.read<FetchProductDetailBloc>().add(
+                        FetchProductEvent(
+                            makeId: state.item.data.makes[index].id));
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) =>  ProductDetailPage(makeId: state.item[index].id)));
+                        builder: (_) => ProductDetailPage(
+                            makeId: state.item.data.makes[index].id)));
                   },
                   child: Container(
                     color: Colors.blue.shade300,
@@ -42,8 +43,9 @@ class _HomePageState extends State<HomePage> {
                     width: 300,
                     child: Column(
                       children: [
-                        Text(state.item[index].id.toString()),
-                        Text(state.item[index].title),
+                        // Text(state.item.count.toString()),
+                        Text(state.item.data.makes[index].title),
+                        Text(state.item.data.makes[index].count)
                       ],
                     ),
                   ),

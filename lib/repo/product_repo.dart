@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
@@ -65,14 +66,15 @@ class ProductRepository {
     }
   }
 
-  Future<Either<String, List<Make>>> fetchProduct() async {
+  Future<Either<String, Product>> fetchProduct() async {
     try {
       final response = await dio.get(
-          'https://site.webcreationcanada.com/ds/api/get-makes-with-count');
+          'https://site.webcreationcanada.com/ds/api/get-makes-with-vehicle-count');
       if (response.statusCode == 200) {
-        final products = List.from(response.data['data']['makes'])
-            .map((e) => Make.fromMap(e))
-            .toList();
+        // final products = response.data
+        //     .map((e) => Product.fromMap(e))
+        //     ;
+        final Product products = Product.fromMap(response.data);
         return Right(products);
       } else {
         return Left(

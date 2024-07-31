@@ -12,7 +12,7 @@ class ProductCubit extends Cubit<CommonState> {
       final res = await productRepository.fetchProduct();
       res.fold(
         (error) => emit(CommonErrorState(message: error)),
-        (data) => emit(CommonSuccessState<List<Make>>(item: data)),
+        (data) => emit(CommonSuccessState<Product>(item: data)),
       );
    }
 }
