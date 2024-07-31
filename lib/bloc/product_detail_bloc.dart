@@ -6,31 +6,31 @@ import 'package:siddharth/repo/product_repo.dart';
 
 import '../models/product_detail.dart';
 
-class FetchProductDetailBloc extends Bloc<ProductDetailEvent,CommonState> {
+class FetchProductDetailBloc extends Bloc<ProductDetailEvent, CommonState> {
   final ProductRepository repository;
-  FetchProductDetailBloc({required this.repository}):super(CommonInitialState()){
+  FetchProductDetailBloc({required this.repository})
+      : super(CommonInitialState()) {
+    on<FetchProductEvent>((event, emit) async {
+      emit(CommonLoadingState(showLoading: true));
+      final res = await repository.fetchProductDetail(
+          isLoadMore: false, makeId: event.makeId);
+      res.fold(
+        (err) => emit(CommonErrorState(message: err)),
+        (data) => emit(CommonSuccessState<List<Data>>(item: data)),
+      );
+    });
 
-on<FetchProductEvent>((event,emit)async{
-emit(CommonLoadingState(showLoading: true));
-final res=await repository.fetchProductDetail(isLoadMore: false,makeId:event.makeId );
-res.fold(
-  (err)=>emit(CommonErrorState(message: err)),
-  (data)=>emit(CommonSuccessState<List<Data>>(item: data)),
-);
-});
-
-on<LoadMoreProductEvent>((event,emit)async{
-emit(CommonLoadingState(showLoading: false));
-final res=await repository.fetchProductDetail(isLoadMore: true,makeId:event.makeId);
-res.fold(
-  (err)=>emit(CommonErrorState(message: err)),
-  (data)=>emit(CommonSuccessState<List<Data>>(item: data)),
-);
-},
-transformer: droppable(),
-
-);
+    on<LoadMoreProductEvent>(
+      (event, emit) async {
+        emit(CommonLoadingState(showLoading: false));
+        final res = await repository.fetchProductDetail(
+            isLoadMore: true, makeId: event.makeId);
+        res.fold(
+          (err) => emit(CommonErrorState(message: err)),
+          (data) => emit(CommonSuccessState<List<Data>>(item: data)),
+        );
+      },
+      transformer: droppable(),
+    );
   }
-
-
 }

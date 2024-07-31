@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +17,6 @@ class ProductDetailPage extends StatefulWidget {
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
   final ScrollController _scrollController = ScrollController();
-  List<Data> _allItems = []; // Keep track of all items
 
   @override
   void initState() {
@@ -51,28 +51,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
       body: BlocConsumer<FetchProductDetailBloc, CommonState>(
         listener: (context, state) {
-          if (state is CommonSuccessState<List<Data>>) {
-            final newItems = state.item;
-            final previousItemCount = _allItems.length;
-
-            // Update all items
-            _allItems = newItems;
-
-            // Calculate the new items loaded
-            final newItemsCount = _allItems.length - previousItemCount;
-
-            if (newItemsCount > 0) {
-              // Calculate the height of the new items to adjust the scroll
-              final newItemsHeight = (150.0 + 10.0) * newItemsCount;
-
-              // Post a frame callback to ensure UI update has occurred
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final newPosition =
-                    _scrollController.position.maxScrollExtent - newItemsHeight;
-                _scrollController.jumpTo(newPosition > 0 ? newPosition : 0);
-              });
-            }
-          }
+          if (state is CommonSuccessState<List<Data>>) {}
         },
         builder: (context, state) {
           if (state is CommonErrorState) {
@@ -82,7 +61,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           } else if (state is CommonSuccessState<List<Data>>) {
             return ListView.separated(
               controller: _scrollController,
-              itemCount: _allItems.length,
+              itemCount: state.item.length,
               itemBuilder: (context, index) {
                 return Container(
                   height: 150,
@@ -90,8 +69,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   color: Colors.yellow.shade300,
                   child: Column(
                     children: [
-                      Text(_allItems[index].id.toString()),
-                      Text(_allItems[index].title.toString()),
+                      Text(state.item[index].id.toString()),
+                      Text(state.item[index].title.toString()),
+                      if (state is CommonLoadingState)
+                        const Center(child: Text('loading...'))
                     ],
                   ),
                 );
@@ -101,8 +82,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               },
             );
           }
-
-          return const SizedBox();
+          return const SizedBox.shrink();
         },
       ),
     );
